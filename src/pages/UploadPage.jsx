@@ -18,14 +18,22 @@ useEffect(() => {
   const fetchData = async () => {
     try {
       const regionRes = await fetch('https://ga85834a6daed8b-omfysadw.adb.ap-mumbai-1.oraclecloudapps.com/ords/customerorders/uploader/gerRegion');
-      const regionData = await regionRes.json();
-      const regionArray=regionData.items.map((val)=>val.region);
-      setRegions(regionArray);
-
+      if (regionRes.status === 200) {
+        const regionData = await regionRes.json();
+        const regionArray = regionData.items.map((val) => val.region);
+        setRegions(regionArray);
+      } else {
+        navigate(`/upload-error?message=Unable to fetch Regios please try again later`);
+      }
       const buRes = await fetch('https://ga85834a6daed8b-omfysadw.adb.ap-mumbai-1.oraclecloudapps.com/ords/customerorders/uploader/getBusinessCode');
-      const buData = await buRes.json();
-      const buArray=buData.items.map((val)=>val.busiess_code)
-      setBusinessUnits(buArray);
+      if(buRes.status===200){
+        const buData = await buRes.json();
+        const buArray=buData.items.map((val)=>val.busiess_code)
+        setBusinessUnits(buArray);
+      }else{
+        navigate(`/upload-error?message=Unable to fetch Business Code please try again later`);
+      }
+
     } catch (err) {
       console.error('Failed to load data:', err);
       alert('Failed to load region or business unit data.');
@@ -34,7 +42,7 @@ useEffect(() => {
 
   fetchData();
 }, []);
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!region || !uploadType || files.length === 0 || (uploadType === 'business' && selectedBU.length === 0)) {
       alert('Please complete all fields before uploading.');
       return;
@@ -49,24 +57,48 @@ useEffect(() => {
     Array.from(files).forEach(file => {
       formData.append('files', file);
     });
-
-    fetch('https://oxstgz3tarswqf7yqbf2bcfcx4.apigateway.ap-mumbai-1.oci.customer-oci.com/oda/abg_policy_uploader/upload', {
-      method: 'POST',
-      body: formData,
-    })
-      .then(res => res.json())
-      .then(data => {
+    try {
+      const res = await fetch('https://oxstgz3tarswqf7yqbf2bcfcx4.apigateway.ap-mumbai-1.oci.customer-oci.com/oda/abg_policy_uploader/upload', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      if (res.status === 200) {
+        const data = await res.json();
         console.log(data);
         setFiles([]);
         setIsLoading(false); // ✅ Hide loader
         navigate('/success');
-      })
-      .catch(err => {
-        console.error(err);
-        setIsLoading(false); // ✅ Hide loader
-        const errorMsg = encodeURIComponent('Upload failed. Please check your network or file format.');
+      } else {
+        console.error(`Upload failed with status: ${res.status}`);
+        setIsLoading(false);
+        const errorMsg = encodeURIComponent('Upload failed. Server responded with error.');
         navigate(`/upload-error?message=${errorMsg}`);
-      });
+      }
+  
+    } catch (err) {
+      console.error('Upload exception:', err);
+      setIsLoading(false); // ✅ Hide loader
+      const errorMsg = encodeURIComponent('Upload failed. Please check your network or file format.');
+      navigate(`/upload-error?message=${errorMsg}`);
+    }
+    // fetch('https://oxstgz3tarswqf7yqbf2bcfcx4.apigateway.ap-mumbai-1.oci.customer-oci.com/oda/abg_policy_uploader/upload', {
+    //   method: 'POST',
+    //   body: formData,
+    // })
+    //   .then(res => res.json())
+    //   .then(data => {
+    //     console.log(data);
+    //     setFiles([]);
+    //     setIsLoading(false); // ✅ Hide loader
+    //     navigate('/success');
+    //   })
+    //   .catch(err => {
+    //     console.error(err);
+    //     setIsLoading(false); // ✅ Hide loader
+    //     const errorMsg = encodeURIComponent('Upload failed. Please check your network or file format.');
+    //     navigate(`/upload-error?message=${errorMsg}`);
+    //   });
   };
   if (isLoading) {
     return (
