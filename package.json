@@ -18,7 +18,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "helm install abg-doc-uploader1 deploy/custom-component",
+    "undeploy": "helm delete abg-doc-uploader"
   },
   "eslintConfig": {
     "extends": [

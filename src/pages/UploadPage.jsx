@@ -58,7 +58,7 @@ useEffect(() => {
       formData.append('files', file);
     });
     try {
-      const res = await fetch('https://oxstgz3tarswqf7yqbf2bcfcx4.apigateway.ap-mumbai-1.oci.customer-oci.com/oda/abg_policy_uploader/upload', {
+      const res = await fetch('https://oxstgz3tarswqf7yqbf2bcfcx4.apigateway.ap-mumbai-1.oci.customer-oci.com/oda/abg_policy_uploader/?type=upload', {
         method: 'POST',
         body: formData,
       });
@@ -82,23 +82,7 @@ useEffect(() => {
       const errorMsg = encodeURIComponent('Upload failed. Please check your network or file format.');
       navigate(`/upload-error?message=${errorMsg}`);
     }
-    // fetch('https://oxstgz3tarswqf7yqbf2bcfcx4.apigateway.ap-mumbai-1.oci.customer-oci.com/oda/abg_policy_uploader/upload', {
-    //   method: 'POST',
-    //   body: formData,
-    // })
-    //   .then(res => res.json())
-    //   .then(data => {
-    //     console.log(data);
-    //     setFiles([]);
-    //     setIsLoading(false); // ✅ Hide loader
-    //     navigate('/success');
-    //   })
-    //   .catch(err => {
-    //     console.error(err);
-    //     setIsLoading(false); // ✅ Hide loader
-    //     const errorMsg = encodeURIComponent('Upload failed. Please check your network or file format.');
-    //     navigate(`/upload-error?message=${errorMsg}`);
-    //   });
+
   };
   if (isLoading) {
     return (
